@@ -4,7 +4,7 @@ import std/base64
 proc hashArgon2*(
   password: string, 
   salt: string, 
-  timeCost: static uint32 = Argon2DefaultParams.timeCost;
+  iterations: static uint32,
   memoryCostK: static uint32 = Argon2DefaultParams.memoryCostK;
   parallelism: static uint32 = Argon2DefaultParams.parallelism;
   hashLen: static uint32 = Argon2DefaultParams.hashLen;
@@ -12,7 +12,7 @@ proc hashArgon2*(
   version: static Argon2Version = Argon2DefaultParams.version
 ): string {.gcsafe, raises: [Argon2Error].} =
   const params = setupArgon2Params(
-    timeCost,
+    timeCost = iterations,
     memoryCostK,
     parallelism,
     hashLen,
