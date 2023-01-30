@@ -3,6 +3,7 @@ import std/[strformat, strutils, base64]
 
 proc EVP_MD_size_fixed*(md: EVP_MD): cint {.cdecl, dynlib: DLLUtilName, importc: "EVP_MD_get_size".}
 proc EVP_sha256_fixed*(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha256".}
+proc EVP_sha512_fixed*(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha512".}
 
 proc PKCS5_PBKDF2_HMAC(
   pass: cstring,
@@ -33,7 +34,7 @@ proc PKCS5_PBKDF2_HMAC(
 ## The derived key will be written to out. 
 ## The size of the out buffer is specified via keylen.
 
-proc hashSHA256Pbkdf2*(password: string, salt: string, iterations: int): string {.gcsafe.} =
+proc hashPbkdf2(password: string, salt: string, iterations: int, digestFunction: EVP_MD): string {.gcsafe.} =
   ## Hashes the given password with a SHA256 digest and the PBKDF2 hashing function
   ## from openSSL. This will execute the PBKDF2.
   ## HMAC = Hash based message authentication code
@@ -41,7 +42,6 @@ proc hashSHA256Pbkdf2*(password: string, salt: string, iterations: int): string 
   if hasTooManyIterations: 
     raise newException(ValueError, fmt"You can not have more iterations than a c integer can carry. Choose a number below {cint.high}")
 
-  let digestFunction: EVP_MD = EVP_sha256_fixed()
   let hashLength: cint = EVP_MD_size_fixed(digestFunction)
   let output = newString(hashLength)
   let outputStartingpoint: cstring = cast[cstring](output[0].unsafeAddr)
@@ -61,3 +61,22 @@ proc hashSHA256Pbkdf2*(password: string, salt: string, iterations: int): string 
   doAssert wasHashSuccessful
 
   result = encode(output)
+
+proc hashSHA256Pbkdf2*(password: string, salt: string, iterations: int): string {.gcsafe.} =
+  ## Hashes the given password with an HMAC using a SHA512 hashing function and the
+  ## PBKDF2 function to derive a key as a "hash" from the password.
+  ## This is using openSSL.
+  ## The returned hash is always 44 characters long.
+  let digestFunction: EVP_MD = EVP_sha256_fixed()
+
+  result = hashPbkdf2(password, salt, iterations, digestFunction)
+
+
+proc hashSHA512Pbkdf2*(password: string, salt: string, iterations: int): string {.gcsafe.} =
+  ## Hashes the given password with an HMAC using a SHA512 hashing function and the
+  ## PBKDF2 function to derive a key as a "hash" from the password.
+  ## This is using openSSL.
+  ## The returned hash is always 88 characters long.
+  let digestFunction: EVP_MD = EVP_sha512_fixed()
+
+  result = hashPbkdf2(password, salt, iterations, digestFunction)

@@ -10,4 +10,5 @@ Further proc parameters are avilable, but use sensible default values if that's 
 
 Currently implemented hashing procs:
 - PBKDF2 - HMAC with SHA256 using [openssl](https://nim-lang.org/docs/openssl.html)
+- PBKDF2 - HMAC with SHA512 using [openssl](https://nim-lang.org/docs/openssl.html)
 - Argon2 using [argon_bind](https://github.com/D-Nice/argon2_bind)
