@@ -10,4 +10,4 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.6.10"
-requires "argon2_bind >= 0.1.1"
+requires "libsodium >= 0.7.1"
