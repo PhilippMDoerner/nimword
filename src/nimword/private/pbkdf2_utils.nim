@@ -11,7 +11,7 @@ type Pbkdf2Algorithm* = enum
 proc EVP_MD_size_fixed*(md: EVP_MD): cint {.cdecl, dynlib: DLLUtilName, importc: "EVP_MD_get_size".} 
 ## Imports that sometimes break when importing from std/openssl - END
 
-func encodeHash*(
+proc encodeHash*(
   hash: string, 
   salt: string, 
   iterations: SomeInteger, 
@@ -19,6 +19,8 @@ func encodeHash*(
 ): string =
   ## Encodes all relevant data for a password hash in a string
   ## with the pattern "<algorithm>$<iterations>$<salt>$<hash>"
+  var encodedSalt = salt.encode()
+  encodedSalt.removeSuffix('=')
   result = fmt"{algorithm}${iterations}${salt}${hash}"
 
 proc PKCS5_PBKDF2_HMAC(
