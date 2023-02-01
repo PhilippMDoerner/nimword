@@ -80,3 +80,4 @@ proc hashPbkdf2*(password: string, salt: string, iterations: int, digestFunction
   doAssert wasHashSuccessful
 
   result = encode(output)
+  result.removeSuffix("=")
