@@ -1,0 +1,14 @@
+services:
+  tests:
+    build: .
+    image: nimword
+    volumes:
+      - .:/usr/src/app
+    command: nimble test
+
+  docs:
+    build: .
+    image: nimword
+    volumes:
+      - .:/usr/src/app
+    command: nimble apis
