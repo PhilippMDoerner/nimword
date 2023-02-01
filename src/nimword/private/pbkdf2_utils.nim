@@ -1,5 +1,5 @@
-from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
-import std/[strformat, strutils]
+from std/openssl import DLLSSLName, EVP_MD, DLLUtilName, getOpenSSLVersion
+import std/[strformat, strutils, dynlib]
 import ./base64_utils
 
 type Pbkdf2Error* = object of ValueError
@@ -8,9 +8,36 @@ type Pbkdf2Algorithm* = enum
   pbkdf2_sha256
   pbkdf2_sha512
 
+
 ## Imports that sometimes break when importing from std/openssl - START
-proc EVP_MD_size_fixed*(md: EVP_MD): cint {.cdecl, dynlib: DLLUtilName, importc: "EVP_MD_get_size".} 
+type DigestSizeProc = proc(md: EVP_MD): cint {.cdecl.}
+
+let lib = loadLibPattern(DLLUtilName)
+assert lib != nil, fmt"Could not find lib {DLLUtilName}"
+
+proc getOpenSSLMajorVersion(): uint =
+  ## Returns the major version of openssl
+  result = (getOpenSSLVersion() shr 28) and 0xF
+
+proc EVP_MD_size_fixed*(md: EVP_MD): cint =
+  assert md != nil, "Tried to get the hash size for a digest function but the digest function was nil!"
+  let sizeProc: DigestSizeProc =
+    if getOpenSSLMajorVersion() == 3:
+      cast[DigestSizeProc](lib.symAddr("EVP_MD_get_size"))
+    
+    elif getOpenSSLMajorVersion() == 1:
+      cast[DigestSizeProc](lib.symAddr("EVP_MD_size"))
+
+    else:
+      raise newException(ValueError, fmt"This library supports only openssl 1 and 3. The openssl version we found was {getOpenSSLMajorVersion()}")
+  
+  assert sizeProc != nil, "Failed to load hash size for digest function"
+  result = sizeProc(md)
+
+
 ## Imports that sometimes break when importing from std/openssl - END
+
+
 
 proc `$`(s: seq[byte]): string =
   ## Casts a 
