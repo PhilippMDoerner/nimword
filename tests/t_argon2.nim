@@ -13,38 +13,12 @@ import libsodium/[sodium_sizes]
 const password = "lala"
 const salt = "1234567812345678"
 const hashLength = 32
-let iterations = crypto_pwhash_opslimit_moderate().int
+let iterations = 1
 
 let memoryLimitBytes = crypto_pwhash_memlimit_moderate().int
 let memoryLimitInKb = memoryLimitBytes/1024
 
-suite "Argon2 ":
-  test """
-    Given a password, a salt and a number of iterations,
-    When calculating a hash with hashPassword
-    It should produce an identical hash to calling the argon cli command 
-    `echo -n lala | argon2 1234567812345678 -v 13 -id -p 1 -k 262144.0 -t 3 -l 32 -e`
-  """:
-    # Given
-    let argonCommand = fmt"echo -n {password} | argon2 {salt} -v 13 -id -p 1 -k {memoryLimitInKb} -t {iterations} -l {hashLength} -e"
-    let cliEncodedHash = execCmdEx(argonCommand).output
-    var cliHash: string = cliEncodedHash.split('$')[^1]
-    cliHash.removeSuffix("\n")
-
-    # When
-    let libHash = hashPassword(
-      password, 
-      salt, 
-      iterations, 
-      hashLength, 
-      algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
-    )
-
-    # Then
-    check cliHash == libHash
-
-
+suite "nimword-basics":
   test """
     Given a password and its hash
     When calculating the hash with hashPassword using a different salt
@@ -81,7 +55,7 @@ suite "Argon2 ":
     It should produce an different hash from the initial one 
   """:
     # Given
-    let differentIterations = iterations - 1
+    let differentIterations = iterations + 1
     let initialHash = hashPassword(
       password, 
       salt, 
@@ -111,7 +85,7 @@ suite "Argon2 ":
     Then it should produce a string that is identical to one produced by `hashEncodePassword`
   """:
     # Given
-    let expectedEncodedHash: string = hashEncodePassword(password, phaArgon2id13, iterations, memoryLimitBytes)
+    let expectedEncodedHash: string = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
     let salt: string = encodedSalt.decode()
     let hash: string = hashPassword(
@@ -142,7 +116,7 @@ suite "Argon2 ":
     Then return true
   """:
     # Given
-    let encodedHash = hashEncodePassword(password, phaArgon2id13, iterations, memoryLimitBytes)
+    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
 
     # When
     let isValid = password.isValidPassword(encodedHash)
@@ -157,10 +131,37 @@ suite "Argon2 ":
     Then return false
   """:
     # Given
-    let encodedHash = hashEncodePassword(password, phaArgon2id13, iterations, memoryLimitBytes)
+    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
     let differentPassword = fmt"{password}andmore"
     # When
     let isValid = differentPassword.isValidPassword(encodedHash)
 
     # Then
     check isValid == false
+
+
+suite "Argon2 specific":
+  test """
+    Given a password, a salt and a number of iterations,
+    When calculating a hash with hashPassword
+    It should produce an identical hash to calling the argon cli command 
+    `echo -n lala | argon2 1234567812345678 -v 13 -id -p 1 -k 262144.0 -t 3 -l 32 -e`
+  """:
+    # Given
+    let argonCommand = fmt"echo -n {password} | argon2 {salt} -v 13 -id -p 1 -k {memoryLimitInKb} -t {iterations} -l {hashLength} -e"
+    let cliEncodedHash = execCmdEx(argonCommand).output
+    var cliHash: string = cliEncodedHash.split('$')[^1]
+    cliHash.removeSuffix("\n")
+
+    # When
+    let libHash = hashPassword(
+      password, 
+      salt, 
+      iterations, 
+      hashLength, 
+      algorithm = phaArgon2id13, 
+      memoryLimit = memoryLimitBytes
+    )
+
+    # Then
+    check cliHash == libHash
