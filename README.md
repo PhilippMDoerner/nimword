@@ -20,8 +20,17 @@ let encodedHash: string = hashEncodePassword(password, iterations)
 assert password.isValidPassword(encodedHash) == true
 ```
 
-## Structure
+## Core-API
 Every algorithm is provided in its own module.
-Every module will provide a `hashEncodePassword` proc to create encoded hashes that can be stored in a database, and `isValidPassword` to validate a password against the encoded hash. "Encoded hashes" in this context mean strings containing the password-hash as well as all data required to replicate the hash operation.
+Every module will provide `hashEncodePassword` and `isValidPassword`:
+- `hashEncodePassword`:
+  Proc to create base64 encoded hashes and further encodes them in a specific format that can be stored in e.g. a database.
+  Always takes the plain-text password and a number of iterations for the algorithm. May take additional parameter depending on the algorithm, though those will have sensible default values. The salts for hashing will be generated.
+- `isValidPassword`:
+  Proc to validate if a given password is identical to the one that was used to create an encoded hash. 
 
-In case you want to build your own validation and encoding, every module also provides a `hashPassword` proc to solely generate the hash as well as `encodeHash` to generate an encoded hash string like `hashEncodePassword` does.
+In case something custom must be built, all modules further provide:
+- `hashPassword`:
+  Proc to create base 64 encoded hashes like `hashEncodePassword`, but returns the hash directly from there without turning it into a specific format like `hashEncodePassword` does.
+- `encodeHash`:
+  Proc to generate strings of the format that `hashEncodePassword` outputs, but without doing any of the hashing itself.
