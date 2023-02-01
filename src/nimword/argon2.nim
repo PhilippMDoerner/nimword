@@ -3,9 +3,6 @@ import libsodium/[sodium, sodium_sizes]
 
 export sodium.PasswordHashingAlgorithm
 
-proc toBytes(s: string): seq[byte] =
-  result = cast[ptr seq[byte]](unsafeAddr s)[]
-
 proc encodeHash*(
   hash: string, 
   salt: seq[byte], 
