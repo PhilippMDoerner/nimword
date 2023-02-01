@@ -1,5 +1,5 @@
 import unittest
-import std/[strformat, osproc, strutils]
+import std/[strformat, strutils]
 import nimword/pbkdf2_sha512
 import nimword/private/base64_utils
 

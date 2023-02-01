@@ -11,7 +11,7 @@ const hashLength = 32
 let iterations = 1
 
 let memoryLimitBytes = crypto_pwhash_memlimit_moderate().int
-let memoryLimitInKiB = (memoryLimitBytes/1024).int
+let memoryLimitInKiB = (memoryLimitBytes / 1024).int
 
 suite "nimword-basics":
   test """
@@ -80,10 +80,9 @@ suite "nimword-basics":
     Then it should produce a string that is identical to one produced by `hashEncodePassword`
   """:
     # Given
-    let expectedEncodedHash: string = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
+    let expectedEncodedHash: string = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitInKiB)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
     let salt: seq[byte] = encodedSalt.decode()
-
     let hash: string = hashPassword(
       password, 
       salt, 
@@ -151,7 +150,6 @@ suite "Argon2 specific":
     cliHash.removeSuffix("\n")
 
     # When
-    echo argonCommand
     let libHash = hashPassword(
       password, 
       salt, 

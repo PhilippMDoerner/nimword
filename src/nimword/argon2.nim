@@ -11,10 +11,16 @@ proc encodeHash*(
   memoryLimitKibiBytes: int;
 ): string =
   ## Encodes all relevant data for a password hash in a string.
-  ## Salt and hash are both assumed to be base64 encoded strings.
-  ## MemoryLimit is to be provided in KiB.
+  ## 
+  ## The returned string can be used with `isValidPassword<#isValidPassword>`_ .
+  ## 
+  ## Hash is assumed to be a base64 encoded strings.
+  ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
+  ## memoryLimitKibiBytes is the number of KiB used for the hashing process.
+  ## algorithm is either "argon2id" or "argon2i".
+  ## 
   ## The pattern is:
-  ## $<algorithm>$v=<version>$m=<memoryLimit>,t=<iterations>,p=<number of threads>$<salt>$<hash>
+  ## $<algorithm>$v=19$m=<memoryLimit>,t=<iterations>,p=1$<salt>$<hash>
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
 
@@ -36,15 +42,31 @@ proc hashPassword*(
   algorithm: PasswordHashingAlgorithm = phaDefault,
   memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
 ): string =
-  ## Derive an ``outlen`` long key from a password ``passwd`` whose length is in
-  ## between ``crypto_pwhash_passwd_min()`` and ``crypto_pwhash_passwd_max()``
-  ## and a salt of fixed length of ``crypto_pwhash_saltbytes()``.
-  ##
-  ## ``outlen`` should be at least ``crypto_pwhash_bytes_min()`` and at most
-  ## ``crypto_pwhash_bytes_max()``
-  ##
-  ## See also:
-  ## * `crypto_pwhash_str proc <#crypto_pwhash_str,string>`_
+  ## Hashes the given password using the argon2 algorithm from libsodium.
+  ## Returns the hash as a base64 encoded string with any padding "=" suffix
+  ## character removed.
+  ## 
+  ## Salt must be exactly 16 bytes long.
+  ## 
+  ## Iterations is the number of times the argon-algorithm is applied during hashing.
+  ## For guidance on how to choose a number for this value, consult the
+  ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#guidelines-for-choosing-the-parameters>`_
+  ## for the `opslimit` value.
+  ## 
+  ## hashLength is the number of characters that the hash should be long.
+  ## For guidance on how to choose a number for this value, consult the
+  ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#key-derivation>`_ 
+  ## for the `outlen` value.
+  ## 
+  ## The algorithm defaults to the default of libsodium. For guidance on which Argon variant to choose,
+  ## consult the `argon readme<https://github.com/P-H-C/phc-winner-argon2>`_ . Do note that libsodium
+  ## and thus this package does not provide a way to call Argon2D.
+  ## 
+  ## The memoryLimit must be provided in KibiBytes aka KiB, it designates the 
+  ## amount of memory used during hashing.
+  ## For guidance on how to choose a number for this value, consult the 
+  ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#key-derivation>`_
+  ## for the `memlimit` value.
   let memoryLimitBytes = memoryLimitKibiBytes * 1024
   let hashBytes = crypto_pwhash(
     password, 
@@ -59,30 +81,35 @@ proc hashPassword*(
 
 proc hashEncodePassword*(
   password: string, 
-  iterations = crypto_pwhash_opslimit_moderate().int,
-  alg = phaDefault,
-  memlimit = crypto_pwhash_memlimit_moderate().int
+  iterations: int = crypto_pwhash_opslimit_moderate().int,
+  algorithm: PasswordHashingAlgorithm = phaDefault,
+  memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
 ): string =
-  result = crypto_pwhash_str(password, alg, iterations.csize_t, memlimit.csize_t)   ## 
-  ## Returns an ASCII encoded string which includes:
-  ## * the result of the chosen hash algorithm ``alg`` applied to the
-  ##   password ``passwd`` (the default is a memory-hard, CPU-intensive hash
-  ##   function). The password length must be in the range
-  ##   between ``crypto_pwhash_passwd_min()`` and ``crypto_pwhash_passwd_max()``
-  ## * the automatically generated salt used for the previous computation.
-  ## * the other parameters required to verify the password.
-  ##
-  ## The returned string includes only ASCII characters and can be safely
-  ## stored into SQL databases and other data stores.
-  ##
-  ## See also:
-  ## * `crypto_pwhash proc <#crypto_pwhash,string,openArray[byte],Natural>`_
-  ## * `crypto_pwhash_str_verify proc <#crypto_pwhash_str_verify,string,string>`_
+  ## Hashes and encodes the given password using the argon2 algorithm from libsodium.
+  ## 
+  ## Returns the hash as part of a larger string containing hash, iterations, algorithm, 
+  ## memoryLimitKibiBytes and salt. For information about the pattern see `encodeHash<#encodeHash>`_
+  ## 
+  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## 
+  ## The salt is randomly generated during the process.
+  ## 
+  ## For guidance on choosing values for `iterations`, `algorithm`and `memorylimitKibiBytes`
+  ## see `hashPassword<#hashPassword>`_ .
+  let memoryLimitBytes: int = memoryLimitKibiBytes * 1024
+  result = crypto_pwhash_str(
+    password, 
+    algorithm, 
+    iterations.csize_t, 
+    memoryLimitBytes.csize_t
+  )
 
 proc isValidPassword*(password: string, encodedHash: string): bool =
-  ## Verifies that str is a valid password verification string (as generated by
-  ## ``crypto_pwhash_str()``) for ``passwd``
-  ##
-  ## See also:
-  ## * `crypto_pwhash_str proc <#crypto_pwhash_str,string>`_
+  ## Verifies that a given plain-text password can be used to generate
+  ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
+  ## 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
+  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ## 
+  ## Raises SodiumError if an error happens during the process.
   result = crypto_pwhash_str_verify(encodedHash, password) 

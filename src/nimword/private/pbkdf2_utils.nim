@@ -12,15 +12,24 @@ type Pbkdf2Algorithm* = enum
 proc EVP_MD_size_fixed*(md: EVP_MD): cint {.cdecl, dynlib: DLLUtilName, importc: "EVP_MD_get_size".} 
 ## Imports that sometimes break when importing from std/openssl - END
 
+proc `$`(s: seq[byte]): string =
+  ## Casts a 
+  result = cast[ptr string](unsafeAddr s)[]
+
 proc encodeHash*(
   hash: string, 
   salt: seq[byte], 
   iterations: SomeInteger, 
   algorithm: Pbkdf2Algorithm,
 ): string =
-  ## Encodes all relevant data for a password hash in a string
-  ## with the pattern "<algorithm>$<iterations>$<salt>$<hash>"
-  ## Expects salt to be not base64 encoded.
+  ## Encodes all relevant data for a password hash in a string.
+  ## 
+  ## Hash is assumed to be a base64 encoded strings.
+  ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
+  ## Algorithm is either "pbkdf2_sha256" or "pbkdf2_sha512"
+  ## 
+  ## The pattern is:
+  ## $<algorithm>$<iterations>$<salt>$<hash>
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
   result = fmt"${algorithm}${iterations}${encodedSalt}${hash}"

@@ -11,29 +11,60 @@ proc encodeHash*(
   salt: seq[byte], 
   iterations: SomeInteger, 
 ): string =
+  ## Convenience proc to encode all relevant data for a password hash 
+  ## using pbkdf2_sha512 into a string.
+  ##  
+  ## The returned string can be used with `isValidPassword<#isValidPassword>`_ .
+  ## 
+  ## For further information, see `encodeHash<private/pbkdf2_utils.html#encodeHash>`_
+
   result = encodeHash(hash, salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
 proc hashPassword*(password: string, salt: seq[byte], iterations: int): string {.gcsafe.} =
-  ## Hashes the given password with an HMAC using the SHA512 hashing function 
-  ## and the PBKDF2 function to derive a key as a "hash" from the password.
-  ## This is using openSSL.
-  ## The returned hash is always 88 characters long.
+  ## Hashes the given plain-text password with the PBKDF2 using an HMAC 
+  ## with the SHA512 hashing algorithm from openssl.
+  ## 
+  ## Returns the hash as string.
+  ## 
+  ## Salt can be of any size, but is recommended to be at least 16 bytes long.
+  ## 
+  ## Iterations is the number of times the argon-algorithm is applied during hashing.
+  ## Set the number of iterations to be as high as you can as long as hashing 
+  ## times remain acceptable for your application.
+  ## For online use (e.g. logging in on a website), a 1 second computation is likely to be the acceptable maximum.
+  ## For interactive use (e.g. a desktop application), a 5 second pause after having entered a password is acceptable if the password doesn't need to be entered more than once per session.
+  ## For non-interactive and infrequent use (e.g. restoring an encrypted backup), an even slower computation can be an option.
   let digestFunction: EVP_MD = EVP_sha512_fixed()
 
   result = hashPbkdf2(password, salt, iterations, digestFunction)
 
 proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
-  ## Hashes the given password with an HMAC using the SHA512 hashing function 
-  ## and the PBKDF2 function to derive a key as a "hash" from the password.
-  ## This is using openSSL.
-  ## The hash is returned in a string together with the algorithm, salt and 
-  ## number of iterations used to generate it, following this pattern:
-  ## "<algorithm>$<iterations>$<salt>$<hash>" 
+  ## Hashes and encodes the given password with the PBKDF2 using an HMAC 
+  ## with the SHA256 hashing algorithm from openssl.
+  ## 
+  ## Returns the hash as part of a larger string containing hash, iterations and salt. 
+  ## For information about the pattern see `encodeHash<#encodeHash>`_
+  ## 
+  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## 
+  ## For guidance on choosing values for `iterations`, `algorithm`and `memorylimitKibiBytes`
+  ## see `hashPassword<#hashPassword>`_ .
+  ## 
+  ## The salt used for the hash is randomly generated during the process.
+
   let salt = urandom(16)
   let hash = hashPassword(password, salt, iterations)
   result = hash.encodeHash(salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
 proc isValidPassword*(password: string, encodedHash: string): bool =
+  ## Verifies that a given plain-text password can be used to generate
+  ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
+  ## 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
+  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ##
+  ## Raises Pbkdf2Error if an error happens during the process.
+
   try:
     let hashPieces: seq[string] = encodedHash.split('$')[1..^1]
     let iterations: int = parseInt(hashPieces[1])
@@ -47,6 +78,6 @@ proc isValidPassword*(password: string, encodedHash: string): bool =
   except CatchableError as e:
     raise newException(
       Pbkdf2Error, 
-      fmt"Could not calculate password hash from the data encoded in '{encodedHash}'. Expected pattern of 'pbkdf2_sha256$<iterations>$<salt>$<hash>'", 
+      fmt"Could not calculate password hash from the data encoded in '{encodedHash}'", 
       e
     )
