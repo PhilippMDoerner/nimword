@@ -5,31 +5,23 @@
 
 This package is a collection of functions for password hashing implemented by other packages, presented with a unified interface.
 
-The algorithms can either be used directly, or through a central location
-
-Further proc parameters are avilable, but use sensible default values if that's all that's needed.
-
 Currently available hashing algorithms:
 - PBKDF2 - HMAC with SHA256 using [openssl](https://nim-lang.org/docs/openssl.html)
 - PBKDF2 - HMAC with SHA512 using [openssl](https://nim-lang.org/docs/openssl.html)
 - Argon2 using [libsodium](https://github.com/FedericoCeratto/nim-libsodium)
 
+## Basic usage
+The following will work for every module:
+```nim
+let password: string = "my-super-secret-password"
+let iterations: int = 3 # For Argon2 this is sensible, for pbkdf2 consider a number above 100.000
+let encodedHash: string = hashEncodePassword(password, iterations)
+
+assert password.isValidPassword(encodedHash) == true
+```
 
 ## Structure
 Every algorithm is provided in its own module.
-Every module will provide 4 procs:
-- hashEncodePassword:
-  Turns a password together with a salt (will be generated if not provided) and a number of iterations into a hash in an encoded string. Extra options for customization may be available depending on the algorithm, but will have sensible default values.
-  The encoded string will contain the base64 encoded hash itself, as well as the salt, iterations and extra options used.
-  It can be used to validate plain text passwords with `isValidPassword`.
-- isValidPassword:
-  Validates a password against a hash in an encoded string as provided by `hashEncodePassword` or `encodeHash`.
-  It extracts the values required from that encoded string, hashes the given plain-text password and compares the hashes
-- encodeHash:
-  Encodes a hash and the values used to generate it into a string that can be used with `isValidPassword`.
-  This proc is mostly intended for users that need to build a custom solution for their authentication.
-- hashPassword:
-  Turns a password together with a salt (will be generated if not provided) and a number of iterations into a hash.
-  It will not encode the string as `hashEncodePassword` does.
-  This proc is mostly intended for users that need to build a custom solution for their authentication.
+Every module will provide a `hashEncodePassword` proc to create encoded hashes that can be stored in a database, and `isValidPassword` to validate a password against the encoded hash. "Encoded hashes" in this context mean strings containing the password-hash as well as all data required to replicate the hash operation.
 
+In case you want to build your own validation and encoding, every module also provides a `hashPassword` proc to solely generate the hash as well as `encodeHash` to generate an encoded hash string like `hashEncodePassword` does.
