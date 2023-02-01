@@ -34,12 +34,11 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   ## "<algorithm>$<iterations>$<salt>$<hash>" 
   let salt = $urandom(16)
   let hash = hashPassword(password, salt, iterations)
-  let encodedSalt = salt.encode()
-  result = hash.encodeHash(encodedSalt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
+  result = hash.encodeHash(salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
 proc isValidPassword*(password: string, encodedHash: string): bool =
   try:
-    let hashPieces: seq[string] = encodedHash.split('$')
+    let hashPieces: seq[string] = encodedHash.split('$')[1..^1]
     let iterations: int = parseInt(hashPieces[1])
     let salt: string = hashPieces[2].decode()
 

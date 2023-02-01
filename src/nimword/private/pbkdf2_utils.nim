@@ -19,9 +19,10 @@ proc encodeHash*(
 ): string =
   ## Encodes all relevant data for a password hash in a string
   ## with the pattern "<algorithm>$<iterations>$<salt>$<hash>"
+  ## Expects salt to be not base64 encoded.
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
-  result = fmt"{algorithm}${iterations}${salt}${hash}"
+  result = fmt"${algorithm}${iterations}${encodedSalt}${hash}"
 
 proc PKCS5_PBKDF2_HMAC(
   pass: cstring,

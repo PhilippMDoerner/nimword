@@ -75,7 +75,7 @@ suite "PBKDF2-HMAC-SHA256":
     # When
     let encodedHash: string = encodeHash(
       hash, 
-      encodedSalt, 
+      salt, 
       iterations,
     )
     
