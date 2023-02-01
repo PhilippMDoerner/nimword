@@ -1,21 +1,32 @@
-import std/[strformat, base64]
+import std/[strformat, base64, strutils]
 import libsodium/[sodium, sodium_sizes]
+
+
+proc toBytes(s: string): seq[byte] =
+  result = cast[ptr seq[byte]](unsafeAddr s)[]
 
 proc encodeHash*(
   hash: string, 
   salt: seq[byte], 
   iterations: int, 
   algorithm: PasswordHashingAlgorithm;
-  memoryLimit: int;
+  memoryLimitBytes: int;
 ): string =
   ## Encodes all relevant data for a password hash in a string, with both
   ## salt and hash being base64 encoded. The pattern is:
   ## <algorithm>$v=<version>$m=<memoryLimit>,t=<iterations>,p=<number of threads>$<salt>$<hash>
-  let encodedSalt = salt.encode()
-  result = fmt"{algorithm}$v=19$m={memoryLimit},t={iterations},p=1${encodedSalt}${hash}"
+  var encodedSalt = salt.encode()
+  encodedSalt.removeSuffix('=')
 
-proc toBytes(s: string): seq[byte] =
-  result = cast[ptr seq[byte]](unsafeAddr s)[]
+  let memoryLimitKiloBytes = (memoryLimitBytes / 1024).int
+  let algorithmStr = case algorithm:
+    of phaDefault, phaArgon2id13:
+      "argon2id"
+    of phaArgon2i13:
+      "argon2i"
+
+  result = fmt"${algorithmStr}$v=19$m={memoryLimitKiloBytes},t={iterations},p=1${encodedSalt}${hash}"
+
 
 proc hashPassword*(
   password: string, 
