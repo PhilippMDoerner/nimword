@@ -24,7 +24,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.nimble
-          key: ${{ runner.os }}-nimble-${{ hashFiles('snorlogue.nimble') }}
+          key: ${{ runner.os }}-nimble-${{ hashFiles('nimword.nimble') }}
           restore-keys: |
             ${{ runner.os }}-nimble-
 
