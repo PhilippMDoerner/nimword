@@ -67,8 +67,8 @@ proc hashPassword*(
 
 proc hashEncodePassword*(
   password: string, 
-  alg = phaDefault,
   iterations = crypto_pwhash_opslimit_moderate().int,
+  alg = phaDefault,
   memlimit = crypto_pwhash_memlimit_moderate().int
 ): string =
   result = crypto_pwhash_str(password, alg, iterations.csize_t, memlimit.csize_t)   ## 
