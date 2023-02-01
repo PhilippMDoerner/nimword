@@ -27,6 +27,14 @@ proc encodeHash*(
 
   result = fmt"${algorithmStr}$v=19$m={memoryLimitKiloBytes},t={iterations},p=1${encodedSalt}${hash}"
 
+proc encodeHash*(
+  hash: string, 
+  salt: string, 
+  iterations: int, 
+  algorithm: PasswordHashingAlgorithm;
+  memoryLimit: int;
+): string =
+  encodeHash(hash, salt.toBytes(), iterations, algorithm, memoryLimit)
 
 proc hashPassword*(
   password: string, 
