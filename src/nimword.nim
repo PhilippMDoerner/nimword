@@ -14,7 +14,7 @@ import nimword/[argon2, pbkdf2_sha256, pbkdf2_sha512]
 ## Ensure that every module for every algorithm implements 4 procs:
 ## - encodeHash: Given all data used for a password-hashing, generate a string that can be used with "verifyPassword"
 ##  That function is mostly for the user if they want to do their own thing
-## - verifyPassword: Given a hashEncode-string and a password, verify that the password can be turned into the hash in hashEncode
+## - isValidPassword: Given a hashEncode-string and a password, verify that the password can be turned into the hash in hashEncode
 ## proc verifyPassword(password: string, encodedHash: string): bool
 ## - hashPassword: Given a password, salt and a number of iterations (and maybe other options), create and return a hash
 ## - hashEncodePassword: Given a password, salt, and a number of iterations (and maybe other options), create a hash and turn it into a hash-string
