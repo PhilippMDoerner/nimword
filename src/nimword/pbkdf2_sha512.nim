@@ -2,12 +2,16 @@ import std/[strformat, strutils, base64]
 from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
 import ./private/pbkdf2_utils
 
-export pbkdf2_utils.encodeHash
-export pbkdf2_utils.Pbkdf2Algorithm
-
 ## Imports that sometimes break when importing from std/openssl - START
 proc EVP_sha512_fixed(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha512".}
 ## Imports that sometimes break when importing from std/openssl - END
+
+proc encodeHash*(
+  hash: string, 
+  salt: string, 
+  iterations: SomeInteger, 
+): string =
+  result = encodeHash(hash, salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
 proc hashPassword*(password: string, salt: string, iterations: int): string {.gcsafe.} =
   ## Hashes the given password with an HMAC using the SHA512 hashing function 
