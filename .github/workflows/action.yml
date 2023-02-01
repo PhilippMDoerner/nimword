@@ -43,4 +43,4 @@ jobs:
       run: nimble install -y
 
     - name: Test
-      run: nimble tests
+      run: nimble test
