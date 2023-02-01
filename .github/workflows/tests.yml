@@ -1,0 +1,27 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - devel
+      - main
+  pull_request:
+    branches:
+      - devel
+      - main
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: tests
+        run: docker-compose run test
+
+  Docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docs
+        run: docker-compose run docs
+
