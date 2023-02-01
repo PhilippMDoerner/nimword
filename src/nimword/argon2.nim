@@ -11,39 +11,33 @@ proc encodeHash*(
   salt: seq[byte], 
   iterations: int, 
   algorithm: PasswordHashingAlgorithm;
-  memoryLimitBytes: int;
+  memoryLimitKibiBytes: int;
 ): string =
-  ## Encodes all relevant data for a password hash in a string, with both
-  ## salt and hash being base64 encoded. The pattern is:
-  ## <algorithm>$v=<version>$m=<memoryLimit>,t=<iterations>,p=<number of threads>$<salt>$<hash>
+  ## Encodes all relevant data for a password hash in a string.
+  ## Salt and hash are both assumed to be base64 encoded strings.
+  ## MemoryLimit is to be provided in KiB.
+  ## The pattern is:
+  ## $<algorithm>$v=<version>$m=<memoryLimit>,t=<iterations>,p=<number of threads>$<salt>$<hash>
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
 
-  let memoryLimitKiloBytes = (memoryLimitBytes / 1024).int
   let algorithmStr = case algorithm:
     of phaDefault, phaArgon2id13:
       "argon2id"
     of phaArgon2i13:
       "argon2i"
 
-  result = fmt"${algorithmStr}$v=19$m={memoryLimitKiloBytes},t={iterations},p=1${encodedSalt}${hash}"
+  result = fmt"${algorithmStr}$v=19$m={memoryLimitKibiBytes},t={iterations},p=1${encodedSalt}${hash}"
 
-proc encodeHash*(
-  hash: string, 
-  salt: string, 
-  iterations: int, 
-  algorithm: PasswordHashingAlgorithm;
-  memoryLimit: int;
-): string =
-  encodeHash(hash, salt.toBytes(), iterations, algorithm, memoryLimit)
+
 
 proc hashPassword*(
   password: string, 
-  salt: string, 
+  salt: seq[byte], 
   iterations: int = crypto_pwhash_opslimit_moderate().int,
   hashLength: int = 32,
   algorithm: PasswordHashingAlgorithm = phaDefault,
-  memorylimit: int = crypto_pwhash_memlimit_moderate().int
+  memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
 ): string =
   ## Derive an ``outlen`` long key from a password ``passwd`` whose length is in
   ## between ``crypto_pwhash_passwd_min()`` and ``crypto_pwhash_passwd_max()``
@@ -54,13 +48,14 @@ proc hashPassword*(
   ##
   ## See also:
   ## * `crypto_pwhash_str proc <#crypto_pwhash_str,string>`_
+  let memoryLimitBytes = memoryLimitKibiBytes * 1024
   let hashBytes = crypto_pwhash(
     password, 
-    salt.toBytes(), 
+    salt, 
     hashLength, 
     algorithm, 
     iterations.csize_t, 
-    memoryLimit.csize_t
+    memoryLimitBytes.csize_t
   )
   result = hashBytes.encode()
   result.removeSuffix("=")

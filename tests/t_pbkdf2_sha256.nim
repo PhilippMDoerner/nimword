@@ -1,10 +1,11 @@
 import unittest
-import std/[strformat, osproc, strutils, base64]
+import std/[strformat, osproc, strutils]
 import nimword/pbkdf2_sha256
+import nimword/private/base64_utils
 
 const password = "lala"
-const salt = "1234567812345678"
 const hashLength = 32
+let salt = "1234567812345678".toBytes()
 let iterations = 1000
 
 
@@ -15,7 +16,7 @@ suite "PBKDF2-HMAC-SHA256":
     It should produce an different hash from the initial one 
   """:
     # Given
-    let differentSalt = "1234123412341234"
+    let differentSalt = "1234123412341234".toBytes()
     let initialHash = hashPassword(
       password, 
       salt, 
@@ -65,7 +66,7 @@ suite "PBKDF2-HMAC-SHA256":
     # Given
     let expectedEncodedHash: string = hashEncodePassword(password, iterations)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
-    let salt: string = encodedSalt.decode()
+    let salt: seq[byte] = encodedSalt.decode()
     let hash: string = hashPassword(
       password, 
       salt, 

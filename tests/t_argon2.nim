@@ -1,15 +1,17 @@
+import std/[strformat, osproc, strutils]
 import unittest
-import std/[strformat, osproc, strutils, base64]
-import nimword/argon2
 import libsodium/[sodium_sizes]
+import nimword/argon2
+import nimword/private/base64_utils
 
 const password = "lala"
-const salt = "1234567812345678"
+let saltStr = "1234567812345678"
+let salt: seq[byte] = saltStr.toBytes()
 const hashLength = 32
 let iterations = 1
 
 let memoryLimitBytes = crypto_pwhash_memlimit_moderate().int
-let memoryLimitInKb = memoryLimitBytes/1024
+let memoryLimitInKiB = (memoryLimitBytes/1024).int
 
 suite "nimword-basics":
   test """
@@ -18,14 +20,14 @@ suite "nimword-basics":
     It should produce an different hash from the initial one 
   """:
     # Given
-    let differentSalt = "1234123412341234"
+    let differentSalt: seq[byte] = "1234123412341234".toBytes()
     let initialHash = hashPassword(
       password, 
       salt, 
       iterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
     
     # When
@@ -35,7 +37,7 @@ suite "nimword-basics":
       iterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
 
     # Then
@@ -55,7 +57,7 @@ suite "nimword-basics":
       iterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
     
     # When
@@ -65,7 +67,7 @@ suite "nimword-basics":
       differentIterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
 
     # Then
@@ -80,14 +82,15 @@ suite "nimword-basics":
     # Given
     let expectedEncodedHash: string = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
-    let salt: string = encodedSalt.decode()
+    let salt: seq[byte] = encodedSalt.decode()
+
     let hash: string = hashPassword(
       password, 
       salt, 
       iterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
 
     # When
@@ -96,7 +99,7 @@ suite "nimword-basics":
       salt, 
       iterations, 
       phaArgon2id13, 
-      memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
     
     # Then
@@ -109,7 +112,7 @@ suite "nimword-basics":
     Then return true
   """:
     # Given
-    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
+    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitInKiB)
 
     # When
     let isValid = password.isValidPassword(encodedHash)
@@ -124,8 +127,9 @@ suite "nimword-basics":
     Then return false
   """:
     # Given
-    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitBytes)
+    let encodedHash = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitInKiB)
     let differentPassword = fmt"{password}andmore"
+    
     # When
     let isValid = differentPassword.isValidPassword(encodedHash)
 
@@ -141,19 +145,20 @@ suite "Argon2 specific":
     `echo -n lala | argon2 1234567812345678 -v 13 -id -p 1 -k 262144.0 -t 3 -l 32 -e`
   """:
     # Given
-    let argonCommand = fmt"echo -n {password} | argon2 {salt} -v 13 -id -p 1 -k {memoryLimitInKb} -t {iterations} -l {hashLength} -e"
+    let argonCommand = fmt"echo -n {password} | argon2 {saltStr} -v 13 -id -p 1 -k {memoryLimitInKiB} -t {iterations} -l {hashLength} -e"
     let cliEncodedHash = execCmdEx(argonCommand).output
     var cliHash: string = cliEncodedHash.split('$')[^1]
     cliHash.removeSuffix("\n")
 
     # When
+    echo argonCommand
     let libHash = hashPassword(
       password, 
       salt, 
       iterations, 
       hashLength, 
       algorithm = phaArgon2id13, 
-      memoryLimit = memoryLimitBytes
+      memoryLimitKibiBytes = memoryLimitInKiB
     )
 
     # Then

@@ -1,5 +1,6 @@
 from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
-import std/[strformat, strutils, base64]
+import std/[strformat, strutils]
+import ./base64_utils
 
 type Pbkdf2Error* = object of ValueError
 
@@ -13,7 +14,7 @@ proc EVP_MD_size_fixed*(md: EVP_MD): cint {.cdecl, dynlib: DLLUtilName, importc:
 
 proc encodeHash*(
   hash: string, 
-  salt: string, 
+  salt: seq[byte], 
   iterations: SomeInteger, 
   algorithm: Pbkdf2Algorithm,
 ): string =
@@ -54,7 +55,7 @@ proc PKCS5_PBKDF2_HMAC(
 ## The size of the out buffer is specified via keylen.
 
 
-proc hashPbkdf2*(password: string, salt: string, iterations: int, digestFunction: EVP_MD): string {.gcsafe.} =
+proc hashPbkdf2*(password: string, salt: seq[byte], iterations: int, digestFunction: EVP_MD): string {.gcsafe.} =
   ## Hashes the given password with a SHA256 digest and the PBKDF2 hashing function
   ## from openSSL. This will execute the PBKDF2.
   ## HMAC = Hash based message authentication code
@@ -69,7 +70,7 @@ proc hashPbkdf2*(password: string, salt: string, iterations: int, digestFunction
   let hashOperationReturnCode = PKCS5_PBKDF2_HMAC(
     password.cstring,
     -1,
-    salt.cstring,
+    ($salt).cstring,
     len(salt).cint,
     iterations.cint,
     digestFunction,
