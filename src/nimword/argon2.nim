@@ -62,6 +62,7 @@ proc hashPassword*(
     memoryLimit.csize_t
   )
   result = hashBytes.encode()
+  result.removeSuffix("=")
 
 const hashEncodePassword* = crypto_pwhash_str   ## 
   ## Returns an ASCII encoded string which includes:
