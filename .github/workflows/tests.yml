@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: tests
-        run: docker-compose run test
+        run: docker-compose run tests
 
   Docs:
     runs-on: ubuntu-latest
