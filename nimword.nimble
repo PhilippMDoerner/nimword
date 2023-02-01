@@ -19,6 +19,8 @@ task apis, "docs only for api":
     "-o:docs " &
     "src/nimword.nim"
   
+  exec "nim buildIndex -o:docs/index.html docs"
+
 task containerTests, "Runs the tests within a docker container":
   echo staticExec "sudo docker image rm nimword"
   exec "sudo docker-compose run --rm tests"
