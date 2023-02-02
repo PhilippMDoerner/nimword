@@ -27,19 +27,20 @@ assert password.isValidPassword(encodedHash) == true
 ```
 
 ## Core-API
-Every algorithm is provided in its own module.
-Every module will provide `hashEncodePassword` and `isValidPassword`:
+The core module of nimword provides the simple api of `hashEncodePassword` and `isValidPassword`:
 - `hashEncodePassword`:
-  Proc to create base64 encoded hashes and further encodes them in a specific format that can be stored in e.g. a database.
-  Always takes the plain-text password and a number of iterations for the algorithm. May take additional parameter depending on the algorithm, though those will have sensible default values. The salts for hashing will be generated.
+  Proc to create base64 encoded hashes and further encodes them in a specific format that can be stored in e.g. a database and used with `isValidPassword`.
+  Always takes the plain-text password, the algorithm to use for hashing and a number of iterations for the algorithm. Any further values needed by the algorithm will use sensible defaults. The salts for hashing will be generated and returned as part of the encoded string.
 - `isValidPassword`:
   Proc to validate if a given password is identical to the one that was used to create an encoded hash. 
 
-In case something custom must be built, all modules further provide:
+These core procs are also available in the individual modules for each algorithm, there `hashEncodePassword` may expose further options depending on the algorithm.
+
+The individual algorithm-modules further provide 2 procs in case some customization is needed:
 - `hashPassword`:
   Proc to create base 64 encoded hashes like `hashEncodePassword`, but returns the hash directly from there without turning it into a specific format like `hashEncodePassword` does.
 - `encodeHash`:
-  Proc to generate strings of the format that `hashEncodePassword` outputs, but without doing any of the hashing itself.
+  Proc to generate strings of the format that `hashEncodePassword` outputs, but without doing any of the hashing itself. The output can be used with `isValidPassword`.
 
 ## Running tests
 You can run the tests either locally or in a container:

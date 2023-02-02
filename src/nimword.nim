@@ -1,21 +1,53 @@
 import nimword/[argon2, pbkdf2_sha256, pbkdf2_sha512]
+import std/[strutils]
 
-## TODO:
-## Implement here an overarching password hashing manager
-## It shall provide the procs:
-## - verifyPassword:  Given a password and a hash-string, check if it is valid and return a boolean
-##  Use the hash-string to figure out which algorithm/module to use
-##  Use that module's "verifyPassword" function for the boolean
-## - hashPassword: Given a password and an algorithm-variable, turn it into a hash-string. Could maybe also eat a Table for options of the individual parameters
-##  Use the algorithm variable to determine which module to use
-##  Use that module's "hashEncodePassword" function
-## 
-## TODO2:
-## Ensure that every module for every algorithm implements 4 procs:
-## - encodeHash: Given all data used for a password-hashing, generate a string that can be used with "verifyPassword"
-##  That function is mostly for the user if they want to do their own thing
-## - isValidPassword: Given a hashEncode-string and a password, verify that the password can be turned into the hash in hashEncode
-## proc verifyPassword(password: string, encodedHash: string): bool
-## - hashPassword: Given a password, salt and a number of iterations (and maybe other options), create and return a hash
-## - hashEncodePassword: Given a password, salt, and a number of iterations (and maybe other options), create a hash and turn it into a hash-string
-##  That function is mostly for the user if they want to do their own thing
+type NimwordHashingAlgorithm* = enum
+  nhaPbkdf2Sha256 = "pbkdf2_sha256"
+  nhaPbkdf2Sha512 = "pbkdf2_sha512"
+  nhaArgon2i = "argon2i"
+  nhaArgon2id = "argon2id"
+  nhaDefault
+
+proc hashEncodePassword*(
+  password: string,
+  iterations: int,
+  algorithm: NimwordHashingAlgorithm = nhaDefault
+): string =
+  ## Hashes and encodes the given password using the argon2 algorithm from libsodium.
+  ## 
+  ## Returns the hash as part of a larger string containing hash, iterations, algorithm, 
+  ## salt and any further values used to calculate the hash. The pattern depends on the
+  ## algorithm chosen.
+  ## 
+  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## 
+  ## The salt is randomly generated during the process.
+  ## 
+  ## For guidance on choosing values for `iterations` consult the
+  ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#guidelines-for-choosing-the-parameters>`_
+  result = case algorithm:
+  of nhaPbkdf2Sha256:
+    pbkdf2_sha256.hashEncodePassword(password, iterations)
+  of nhaPbkdf2Sha512:
+    pbkdf2_sha512.hashEncodePassword(password, iterations)
+  of nhaArgon2i:
+    argon2.hashEncodePassword(password, iterations, PasswordHashingAlgorithm.phaArgon2i13)
+  of nhaArgon2id:
+    argon2.hashEncodePassword(password, iterations, PasswordHashingAlgorithm.phaArgon2id13)
+  of nhaDefault:
+    argon2.hashEncodePassword(password, iterations, PasswordHashingAlgorithm.phaDefault)
+  
+
+proc isValidPassword*(
+  password: string,
+  encodedHash: string
+): bool =
+  let algorithmStr: string = encodedHash.split("$")[1]
+  let algorithm = parseEnum[NimwordHashingAlgorithm](algorithmStr)
+  case algorithm:
+  of nhaPbkdf2Sha256:
+    result = pbkdf2_sha256.isValidPassword(password, encodedHash)
+  of nhaPbkdf2Sha512:
+    result = pbkdf2_sha512.isValidPassword(password, encodedHash)
+  of nhaArgon2i, nhaArgon2id, nhaDefault:
+    result = argon2.isValidPassword(password, encodedHash)
