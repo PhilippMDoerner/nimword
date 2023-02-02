@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup docs
         run: |
-          mv api-docs/apidocs/ docs/
+          mv api-docs/apidocs docs/
 
       - name: Deploy
         if: success()
