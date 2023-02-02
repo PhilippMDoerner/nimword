@@ -5,16 +5,14 @@
 
 [![github pages](https://github.com/PhilippMDoerner/nimword/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/PhilippMDoerner/nimword/actions/workflows/docs.yml)
 
-<h1> NOT YET FINISHED PACKAGE </h1>
-
 - [API index](https://philippmdoerner.github.io/nimword/nimword.html)
 
 This package is a collection of functions for password hashing implemented by other packages, presented with a unified interface.
 
 Currently available hashing algorithms:
-- PBKDF2 - HMAC with SHA256 using [openssl](https://nim-lang.org/docs/openssl.html)
-- PBKDF2 - HMAC with SHA512 using [openssl](https://nim-lang.org/docs/openssl.html)
-- Argon2 using [libsodium](https://github.com/FedericoCeratto/nim-libsodium)
+- PBKDF2 - HMAC with SHA256 from [openssl](https://nim-lang.org/docs/openssl.html)
+- PBKDF2 - HMAC with SHA512 from [openssl](https://nim-lang.org/docs/openssl.html)
+- Argon2 from [libsodium](https://github.com/FedericoCeratto/nim-libsodium)
 
 ## Basic usage
 The following will work for every module:

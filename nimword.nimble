@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Philipp Doerner"
-description   = "A new awesome nimble package"
+description   = "A simple library with a simple interface to do password hashing and validation with different algorithms"
 license       = "MIT"
 srcDir        = "src"
 
