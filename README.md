@@ -14,6 +14,15 @@ Currently available hashing algorithms:
 - PBKDF2 - HMAC with SHA512 from [openssl](https://nim-lang.org/docs/openssl.html)
 - Argon2 from [libsodium](https://github.com/FedericoCeratto/nim-libsodium)
 
+## Installation
+Install Nimword with [Nimble](https://github.com/nim-lang/nimble):
+
+    $ nimble install -y nimword
+
+Add Snorlogue to your .nimble file:
+
+    requires "nimword"
+
 ## Basic usage
 The following will work for every module:
 ```nim
