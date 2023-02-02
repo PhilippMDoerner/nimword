@@ -19,9 +19,16 @@ Install Nimword with [Nimble](https://github.com/nim-lang/nimble):
 
     $ nimble install -y nimword
 
-Add Snorlogue to your .nimble file:
+Install the external libraries that 
+
+Add Nimword to your .nimble file:
 
     requires "nimword"
+
+
+If you want to use argon2, ensure you have [libsodium](https://doc.libsodium.org/installation) installed. 
+
+If you want to use pbkdf2, ensure you have OpenSSL version 1 or 3 installed
 
 ## Basic usage
 The following will work for every module:
