@@ -9,7 +9,7 @@ type Pbkdf2Algorithm* = enum
   pbkdf2_sha512
 
 
-## Imports that sometimes break when importing from std/openssl - START
+# Imports that sometimes break when importing from std/openssl - START
 type DigestSizeProc = proc(md: EVP_MD): cint {.cdecl, gcsafe.}
 
 let lib = loadLibPattern(DLLUtilName)
@@ -19,7 +19,7 @@ proc getOpenSSLMajorVersion(): uint =
   ## Returns the major version of openssl
   result = (getOpenSSLVersion() shr 28) and 0xF
 
-proc EVP_MD_size_fixed*(md: EVP_MD): cint =
+proc EVP_MD_size_fixed(md: EVP_MD): cint =
   assert md != nil, "Tried to get the hash size for a digest function but the digest function was nil!"
   let sizeProc: DigestSizeProc =
     if getOpenSSLMajorVersion() == 3:
@@ -34,8 +34,7 @@ proc EVP_MD_size_fixed*(md: EVP_MD): cint =
   assert sizeProc != nil, "Failed to load hash size for digest function"
   result = sizeProc(md)
 
-
-## Imports that sometimes break when importing from std/openssl - END
+# Imports that sometimes break when importing from std/openssl - END
 
 
 
