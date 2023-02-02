@@ -2,9 +2,9 @@ import std/[strformat, strutils, sysrand]
 from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
 import ./private/[base64_utils, pbkdf2_utils]
 
-## Imports that sometimes break when importing from std/openssl - START
+# Imports that sometimes break when importing from std/openssl - START
 proc EVP_sha256_fixed(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha256".}
-## Imports that sometimes break when importing from std/openssl - END
+# Imports that sometimes break when importing from std/openssl - END
 
 proc encodeHash*(
   hash: string, 

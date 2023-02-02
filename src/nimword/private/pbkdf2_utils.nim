@@ -5,6 +5,7 @@ import ./base64_utils
 type Pbkdf2Error* = object of ValueError
 
 type Pbkdf2Algorithm* = enum
+  ## The hash algorithms that can be used with pbkdf2
   pbkdf2_sha256
   pbkdf2_sha512
 

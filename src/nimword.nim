@@ -2,6 +2,7 @@ import nimword/[argon2, pbkdf2_sha256, pbkdf2_sha512]
 import std/[strutils, strformat]
 
 type NimwordHashingAlgorithm* = enum
+  ## The number of different hashing algorithms nimword supports
   nhaPbkdf2Sha256 = "pbkdf2_sha256"
   nhaPbkdf2Sha512 = "pbkdf2_sha512"
   nhaArgon2i = "argon2i"
