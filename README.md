@@ -1,7 +1,13 @@
 # Nimword
 #### A mini password hashing collection
 
+[![Run Tests](https://github.com/PhilippMDoerner/nimword/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/PhilippMDoerner/nimword/actions/workflows/tests.yml)
+
+[![github pages](https://github.com/PhilippMDoerner/nimword/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/PhilippMDoerner/nimword/actions/workflows/docs.yml)
+
 <h1> NOT YET FINISHED PACKAGE </h1>
+
+- [API index](https://philippmdoerner.github.io/nimword/)
 
 This package is a collection of functions for password hashing implemented by other packages, presented with a unified interface.
 
