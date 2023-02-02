@@ -7,7 +7,7 @@
 
 <h1> NOT YET FINISHED PACKAGE </h1>
 
-- [API index](https://philippmdoerner.github.io/nimword/)
+- [API index](https://philippmdoerner.github.io/nimword/nimword.html)
 
 This package is a collection of functions for password hashing implemented by other packages, presented with a unified interface.
 
