@@ -58,10 +58,6 @@ jobs:
         run: |
           find .
 
-      - name: Setup docs
-        run: |
-          mv docs/ docs/
-
       - name: Deploy
         if: success()
         uses: crazy-max/ghaction-github-pages@v3.1.0
