@@ -1,6 +1,9 @@
 import nimword/[argon2, pbkdf2_sha256, pbkdf2_sha512]
 import std/[strutils, strformat]
 
+export argon2.SodiumError
+export pbkdf2_sha256.Pbkdf2Error
+
 type NimwordHashingAlgorithm* = enum
   ## The number of different hashing algorithms nimword supports
   nhaPbkdf2Sha256 = "pbkdf2_sha256"
@@ -44,7 +47,7 @@ proc hashEncodePassword*(
 proc isValidPassword*(
   password: string,
   encodedHash: string
-): bool =
+): bool {.raises: {UnknownAlgorithmError, ValueError, Pbkdf2Error, SodiumError, Exception}.} =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 

@@ -2,6 +2,8 @@ import std/[strformat, strutils, sysrand]
 from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
 import ./private/[base64_utils, pbkdf2_utils]
 
+export pbkdf2_utils.Pbkdf2Error
+
 # Imports that sometimes break when importing from std/openssl - START
 proc EVP_sha256_fixed(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha256".}
 # Imports that sometimes break when importing from std/openssl - END
@@ -54,7 +56,7 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   let hash = hashPassword(password, salt, iterations)
   result = hash.encodeHash(salt, iterations)
 
-proc isValidPassword*(password: string, encodedHash: string): bool =
+proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pbkdf2Error, Exception} .} =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
