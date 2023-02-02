@@ -1,5 +1,5 @@
 import unittest
-import std/[strformat, strutils]
+import std/[strformat]
 import nimword
 import nimword/private/base64_utils
 
