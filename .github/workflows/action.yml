@@ -42,5 +42,8 @@ jobs:
     - name: Install Packages
       run: nimble install -y
 
+    - name: Install Argon2 for nimble testing and argon2 test-suite
+      run: apt install argon2
+
     - name: Test
       run: nimble test
