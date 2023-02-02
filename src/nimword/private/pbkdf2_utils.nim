@@ -20,19 +20,21 @@ proc getOpenSSLMajorVersion(): uint =
   ## Returns the major version of openssl
   result = (getOpenSSLVersion() shr 28) and 0xF
 
+let sizeProc: DigestSizeProc =
+  if getOpenSSLMajorVersion() == 3:
+    cast[DigestSizeProc](lib.symAddr("EVP_MD_get_size"))
+  
+  elif getOpenSSLMajorVersion() == 1:
+    cast[DigestSizeProc](lib.symAddr("EVP_MD_size"))
+
+  else:
+    raise newException(ValueError, fmt"This library supports only openssl 1 and 3. The openssl version we found was {getOpenSSLMajorVersion()}")
+assert sizeProc != nil, "Failed to load hash size for digest function"
+
+unloadLib(lib)
+
 proc EVP_MD_size_fixed(md: EVP_MD): cint =
   assert md != nil, "Tried to get the hash size for a digest function but the digest function was nil!"
-  let sizeProc: DigestSizeProc =
-    if getOpenSSLMajorVersion() == 3:
-      cast[DigestSizeProc](lib.symAddr("EVP_MD_get_size"))
-    
-    elif getOpenSSLMajorVersion() == 1:
-      cast[DigestSizeProc](lib.symAddr("EVP_MD_size"))
-
-    else:
-      raise newException(ValueError, fmt"This library supports only openssl 1 and 3. The openssl version we found was {getOpenSSLMajorVersion()}")
-  
-  assert sizeProc != nil, "Failed to load hash size for digest function"
   result = sizeProc(md)
 
 # Imports that sometimes break when importing from std/openssl - END
