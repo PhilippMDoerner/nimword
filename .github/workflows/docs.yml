@@ -44,7 +44,7 @@ jobs:
         with:
           name: api-docs
           path: |
-            docs
+            docs/apidocs
 
   deploy-docs:
     needs:
@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup docs
         run: |
-          mv api-docs/docs docs
+          mv api-docs/apidocs/ docs/
 
       - name: Deploy
         if: success()

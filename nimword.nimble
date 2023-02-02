@@ -16,10 +16,10 @@ task apis, "docs only for api":
   exec "nim doc --verbosity:0 --warnings:off --project --index:on -d:sqlite " &
     "--git.url:https://github.com/PhilippMDoerner/nimword " &
     "--git.commit:main " &
-    "-o:docs " &
+    "-o:docs/apidocs " &
     "src/nimword.nim"
   
-  exec "nim buildIndex -o:docs/index.html docs"
+  exec "nim buildIndex -o:docs/apidocs/index.html docs/apidocs"
 
 task containerTests, "Runs the tests within a docker container":
   echo staticExec "sudo docker image rm nimword"
