@@ -40,3 +40,8 @@ In case something custom must be built, all modules further provide:
   Proc to create base 64 encoded hashes like `hashEncodePassword`, but returns the hash directly from there without turning it into a specific format like `hashEncodePassword` does.
 - `encodeHash`:
   Proc to generate strings of the format that `hashEncodePassword` outputs, but without doing any of the hashing itself.
+
+## Running tests
+You can run the tests either locally or in a container:
+- `nimble test`
+- `nimble containerTest` - This assumes you have docker and docker-compose installed
