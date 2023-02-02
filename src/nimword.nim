@@ -42,6 +42,14 @@ proc isValidPassword*(
   password: string,
   encodedHash: string
 ): bool =
+  ## Verifies that a given plain-text password can be used to generate
+  ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
+  ## 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
+  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ## 
+  ## Raises UnknownAlgorithmError if the encoded hash string is for an algorithm not 
+  ## supported by nimword.
   let algorithmStr: string = encodedHash.split("$")[1]
   let algorithm = parseEnum[NimwordHashingAlgorithm](algorithmStr)
   case algorithm:
