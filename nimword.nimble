@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "Philipp Doerner"
 description   = "A simple library with a simple interface to do password hashing and validation with different algorithms"
 license       = "MIT"
