@@ -19,8 +19,6 @@ Install Nimword with [Nimble](https://github.com/nim-lang/nimble):
 
     $ nimble install -y nimword
 
-Install the external libraries that 
-
 Add Nimword to your .nimble file:
 
     requires "nimword"
