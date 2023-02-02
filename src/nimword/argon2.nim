@@ -12,7 +12,7 @@ proc encodeHash*(
 ): string =
   ## Encodes all relevant data for a password hash in a string.
   ## 
-  ## The returned string can be used with `isValidPassword<#isValidPassword>`_ .
+  ## The returned string can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
   ## 
   ## Hash is assumed to be a base64 encoded strings.
   ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
@@ -88,14 +88,14 @@ proc hashEncodePassword*(
   ## Hashes and encodes the given password using the argon2 algorithm from libsodium.
   ## 
   ## Returns the hash as part of a larger string containing hash, iterations, algorithm, 
-  ## memoryLimitKibiBytes and salt. For information about the pattern see `encodeHash<#encodeHash>`_
+  ## memoryLimitKibiBytes and salt. For information about the pattern see `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
   ## 
-  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## The return value can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
   ## 
   ## The salt is randomly generated during the process.
   ## 
   ## For guidance on choosing values for `iterations`, `algorithm`and `memorylimitKibiBytes`
-  ## see `hashPassword<#hashPassword>`_ .
+  ## see `hashPassword<#hashPassword%2Cstring%2Cseq[byte]%2Cint>`_ .
   let memoryLimitBytes: int = memoryLimitKibiBytes * 1024
   result = crypto_pwhash_str(
     password, 
@@ -108,8 +108,8 @@ proc isValidPassword*(password: string, encodedHash: string): bool =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
-  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
-  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
+  ## and `hashEncodePassword<#hashEncodePassword%2Cstring%2Cint>`_ generate. 
   ## 
   ## Raises SodiumError if an error happens during the process.
   result = crypto_pwhash_str_verify(encodedHash, password) 

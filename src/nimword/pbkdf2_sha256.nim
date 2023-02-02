@@ -14,9 +14,9 @@ proc encodeHash*(
   ## Convenience proc to encode all relevant data for a password hash 
   ## using pbkdf2_sha256 into a string.
   ##  
-  ## The returned string can be used with `isValidPassword<#isValidPassword>`_ .
+  ## The returned string can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
   ## 
-  ## For further information, see `encodeHash<private/pbkdf2_utils.html#encodeHash>`_
+  ## For further information, see `encodeHash<private/pbkdf2_utils.html#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
 
   result = encodeHash(hash, salt, iterations, Pbkdf2Algorithm.pbkdf2_sha256)
 
@@ -42,12 +42,12 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   ## with the SHA256 hashing algorithm from openssl.
   ## 
   ## Returns the hash as part of a larger string containing hash, iterations and salt. 
-  ## For information about the pattern see `encodeHash<#encodeHash>`_
+  ## For information about the pattern see `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
   ## 
-  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## The return value can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
   ## 
   ## For guidance on choosing values for `iterations`, `algorithm`and `memorylimitKibiBytes`
-  ## see `hashPassword<#hashPassword>`_ .
+  ## see `hashPassword<#hashPassword%2Cstring%2Cseq[byte]%2Cint>`_ .
   ## 
   ## The salt used for the hash is randomly generated during the process.
   let salt = urandom(16)
@@ -58,8 +58,8 @@ proc isValidPassword*(password: string, encodedHash: string): bool =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
-  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
-  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
+  ## and `hashEncodePassword<#hashEncodePassword%2Cstring%2Cint>`_ generate. 
   ##
   ## Raises Pbkdf2Error if an error happens during the process.
 

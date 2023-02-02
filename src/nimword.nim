@@ -21,7 +21,7 @@ proc hashEncodePassword*(
   ## salt and any further values used to calculate the hash. The pattern depends on the
   ## algorithm chosen.
   ## 
-  ## The return value can be used with `isValidPassword<#isValidPassword>`_ .
+  ## The return value can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
   ## 
   ## The salt is randomly generated during the process.
   ## 
@@ -47,8 +47,8 @@ proc isValidPassword*(
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
-  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash>`_
-  ## and `hashEncodePassword<#hashEncodePassword>`_ generate. 
+  ## `encodedHash` must be a string with the kind of pattern that `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
+  ## and `hashEncodePassword<#hashEncodePassword%2Cstring%2Cint>`_ generate. 
   ## 
   ## Raises UnknownAlgorithmError if the encoded hash string is for an algorithm not 
   ## supported by nimword.
