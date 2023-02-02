@@ -1,0 +1,3 @@
+nimTitle	base64_utils	nimword/private/base64_utils.html	module src/nimword/private/base64_utils		0
+nim	toBytes	nimword/private/base64_utils.html#toBytes,string	proc toBytes(s: string): seq[byte]		5
+nim	decode	nimword/private/base64_utils.html#decode,string	proc decode(s: string): seq[byte]		9

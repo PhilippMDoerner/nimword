@@ -1,0 +1,9 @@
+nimTitle	nimword	nimword.html	module src/nimword		0
+nim	nhaPbkdf2Sha256	nimword.html#nhaPbkdf2Sha256	NimwordHashingAlgorithm.nhaPbkdf2Sha256		7
+nim	nhaPbkdf2Sha512	nimword.html#nhaPbkdf2Sha512	NimwordHashingAlgorithm.nhaPbkdf2Sha512		7
+nim	nhaArgon2i	nimword.html#nhaArgon2i	NimwordHashingAlgorithm.nhaArgon2i		7
+nim	nhaArgon2id	nimword.html#nhaArgon2id	NimwordHashingAlgorithm.nhaArgon2id		7
+nim	nhaDefault	nimword.html#nhaDefault	NimwordHashingAlgorithm.nhaDefault		7
+nim	NimwordHashingAlgorithm	nimword.html#NimwordHashingAlgorithm	enum NimwordHashingAlgorithm		7
+nim	hashEncodePassword	nimword.html#hashEncodePassword,string,int,NimwordHashingAlgorithm	proc hashEncodePassword(password: string; iterations: int;\n                   algorithm: NimwordHashingAlgorithm = nhaDefault): string		17
+nim	isValidPassword	nimword.html#isValidPassword,string,string	proc isValidPassword(password: string; encodedHash: string): bool		47
