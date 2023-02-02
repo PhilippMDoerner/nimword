@@ -1,5 +1,5 @@
 import nimword/[argon2, pbkdf2_sha256, pbkdf2_sha512]
-import std/[strutils]
+import std/[strutils, strformat]
 
 type NimwordHashingAlgorithm* = enum
   nhaPbkdf2Sha256 = "pbkdf2_sha256"
@@ -7,6 +7,8 @@ type NimwordHashingAlgorithm* = enum
   nhaArgon2i = "argon2i"
   nhaArgon2id = "argon2id"
   nhaDefault
+
+type UnknownAlgorithmError = object of ValueError
 
 proc hashEncodePassword*(
   password: string,
@@ -50,8 +52,13 @@ proc isValidPassword*(
   ## 
   ## Raises UnknownAlgorithmError if the encoded hash string is for an algorithm not 
   ## supported by nimword.
+  var algorithm: NimwordHashingAlgorithm
   let algorithmStr: string = encodedHash.split("$")[1]
-  let algorithm = parseEnum[NimwordHashingAlgorithm](algorithmStr)
+  try:
+    algorithm = parseEnum[NimwordHashingAlgorithm](algorithmStr)
+  except ValueError as e:
+    raise newException(UnknownAlgorithmError, fmt"'{algorithmStr}' is not an algorithm supported by nimword. Consult the NimwordHashingAlgorithm to see which algorithm options are supported.")
+  
   case algorithm:
   of nhaPbkdf2Sha256:
     result = pbkdf2_sha256.isValidPassword(password, encodedHash)
