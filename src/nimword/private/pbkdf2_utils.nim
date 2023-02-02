@@ -10,7 +10,7 @@ type Pbkdf2Algorithm* = enum
 
 
 ## Imports that sometimes break when importing from std/openssl - START
-type DigestSizeProc = proc(md: EVP_MD): cint {.cdecl.}
+type DigestSizeProc = proc(md: EVP_MD): cint {.cdecl, gcsafe.}
 
 let lib = loadLibPattern(DLLUtilName)
 assert lib != nil, fmt"Could not find lib {DLLUtilName}"
