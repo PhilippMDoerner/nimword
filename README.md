@@ -8,6 +8,7 @@
 - [API index](https://philippmdoerner.github.io/nimword/nimword.html)
 
 This package is a collection of functions for password hashing implemented by other packages, presented with a unified interface.
+It is currently only tested for Linux, but *should* work for Windows as well assuming the same libraries are installed.
 
 Currently available hashing algorithms:
 - PBKDF2 - HMAC with SHA256 from [openssl](https://nim-lang.org/docs/openssl.html)
