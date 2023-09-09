@@ -145,7 +145,10 @@ suite "Argon2 specific":
   """:
     # Given
     let argonCommand = fmt"echo -n {password} | argon2 {saltStr} -v 13 -id -p 1 -k {memoryLimitInKiB} -t {iterations} -l {hashLength} -e"
-    let cliEncodedHash = execCmdEx(argonCommand).output
+    let cliResult = execCmdEx(argonCommand)
+    doAssert cliResult.exitCode == 0
+    let cliEncodedHash = cliResult.output
+    
     echo cliEncodedHash.split('$') # TODO: Remove
     var cliHash: Hash = cliEncodedHash.split('$')[^1].decode()
 
