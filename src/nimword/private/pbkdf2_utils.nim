@@ -56,7 +56,7 @@ proc encodeHash*(
 ): string =
   ## Encodes all relevant data for a password hash in a string.
   ## 
-  ## Hash is assumed to be a base64 encoded strings.
+  ## Hash is a seq[byte] like salt and gets turned into a base64 encoded string with all padding suffix characters of "=" removed".
   ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
   ## Algorithm is either "pbkdf2_sha256" or "pbkdf2_sha512"
   ## 

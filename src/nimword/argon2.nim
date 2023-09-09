@@ -18,8 +18,8 @@ proc encodeHash*(
   ## Encodes all relevant data for a password hash in a string.
   ## 
   ## The returned string can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
+  ## Hash is a seq[byte] like salt and gets turned into a base64 encoded string with all padding suffix characters of "=" removed".
   ## 
-  ## Hash is assumed to be a base64 encoded strings.
   ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
   ## memoryLimitKibiBytes is the number of KiB used for the hashing process.
   ## algorithm is either "argon2id" or "argon2i".
@@ -50,8 +50,7 @@ proc hashPassword*(
   memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
 ): Hash {.raises: {SodiumError, ValueError}.} =
   ## Hashes the given password using the argon2 algorithm from libsodium.
-  ## Returns the hash as a base64 encoded string with any padding "=" suffix
-  ## character removed.
+  ## Returns the hash as seq[byte]
   ## 
   ## Salt must be exactly 16 bytes long.
   ## 
@@ -60,7 +59,7 @@ proc hashPassword*(
   ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#guidelines-for-choosing-the-parameters>`_
   ## for the `opslimit` value.
   ## 
-  ## hashLength is the number of characters that the hash should be long.
+  ## hashLength is the number of bytes that the hash should be long.
   ## For guidance on how to choose a number for this value, consult the
   ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#key-derivation>`_ 
   ## for the `outlen` value.

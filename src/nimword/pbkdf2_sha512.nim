@@ -29,7 +29,7 @@ proc hashPassword*(password: Password, salt: seq[byte], iterations: int): Hash {
   ## Hashes the given plain-text password with the PBKDF2 using an HMAC 
   ## with the SHA512 hashing algorithm from openssl.
   ## 
-  ## Returns the hash as string.
+  ## Returns the hash as Hash type.
   ## 
   ## Salt can be of any size, but is recommended to be at least 16 bytes long.
   ## 
@@ -47,7 +47,7 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   ## Hashes and encodes the given password with the PBKDF2 using an HMAC 
   ## with the SHA256 hashing algorithm from openssl.
   ## 
-  ## Returns the hash as part of a larger string containing hash, iterations and salt. 
+  ## Returns the hash in an encoded form as part of a larger string containing hash, iterations and salt. 
   ## For information about the pattern see `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
   ## 
   ## The return value can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
@@ -83,6 +83,6 @@ proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pb
   except CatchableError as e:
     raise newException(
       Pbkdf2Error, 
-      fmt"Could not calculate password hash from the data encoded in '{encodedHash}'", 
+      fmt"Could not calculate password hash from the encodedHash", 
       e
     )

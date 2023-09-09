@@ -18,7 +18,7 @@ type NimwordHashingAlgorithm* = enum
 type UnknownAlgorithmError = object of ValueError
 
 proc hashEncodePassword*(
-  password: string,
+  password: Password,
   iterations: int,
   algorithm: NimwordHashingAlgorithm = nhaDefault
 ): string =
@@ -48,7 +48,7 @@ proc hashEncodePassword*(
   
 
 proc isValidPassword*(
-  password: string,
+  password: Password,
   encodedHash: string
 ): bool {.raises: {UnknownAlgorithmError, ValueError, Pbkdf2Error, SodiumError, Exception}.} =
   ## Verifies that a given plain-text password can be used to generate
