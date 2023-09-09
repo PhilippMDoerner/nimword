@@ -36,7 +36,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Test
         run: |
-          apt-get update && apt-get install -y openssl libsodium-dev xz-utils
+          /bin/bash
+          apt-get update && apt-get install -y openssl libsodium-dev xz-utils argon2
           apt-get install -y argon2
           nimble install -y
           nimble test
