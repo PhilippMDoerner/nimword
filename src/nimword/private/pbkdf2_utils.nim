@@ -1,6 +1,9 @@
 from std/openssl import DLLSSLName, EVP_MD, DLLUtilName, getOpenSSLVersion
 import std/[strformat, strutils, dynlib]
 import ./base64_utils
+import ./types
+
+export types
 
 type Pbkdf2Error* = object of ValueError
 
@@ -46,7 +49,7 @@ proc `$`(s: seq[byte]): string =
   result = cast[ptr string](unsafeAddr s)[]
 
 proc encodeHash*(
-  hash: string, 
+  hash: Hash, 
   salt: seq[byte], 
   iterations: SomeInteger, 
   algorithm: Pbkdf2Algorithm,
@@ -59,9 +62,11 @@ proc encodeHash*(
   ## 
   ## The pattern is:
   ## $<algorithm>$<iterations>$<salt>$<hash>
+  var encodedHash = hash.encode()
+  encodedHash.removeSuffix('=')
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
-  result = fmt"${algorithm}${iterations}${encodedSalt}${hash}"
+  result = fmt"${algorithm}${iterations}${encodedSalt}${encodedHash}"
 
 proc PKCS5_PBKDF2_HMAC(
   pass: cstring,
@@ -93,7 +98,7 @@ proc PKCS5_PBKDF2_HMAC(
 ## The size of the out buffer is specified via keylen.
 
 
-proc hashPbkdf2*(password: string, salt: seq[byte], iterations: int, digestFunction: EVP_MD): string {.gcsafe.} =
+proc hashPbkdf2*(password: Password, salt: seq[byte], iterations: int, digestFunction: EVP_MD): Hash {.gcsafe.} =
   ## Hashes the given password with a SHA256 digest and the PBKDF2 hashing function
   ## from openSSL. This will execute the PBKDF2.
   ## HMAC = Hash based message authentication code
@@ -102,7 +107,7 @@ proc hashPbkdf2*(password: string, salt: seq[byte], iterations: int, digestFunct
     raise newException(ValueError, fmt"You can not have more iterations than a c integer can carry. Choose a number below {cint.high}")
 
   let hashLength: cint = EVP_MD_size_fixed(digestFunction)
-  let output = newString(hashLength)
+  let output: string = newString(hashLength)
   let outputStartingpoint: cstring = cast[cstring](output[0].unsafeAddr)
 
   let hashOperationReturnCode = PKCS5_PBKDF2_HMAC(
@@ -119,5 +124,4 @@ proc hashPbkdf2*(password: string, salt: seq[byte], iterations: int, digestFunct
   let wasHashSuccessful = hashOperationReturnCode == 1
   doAssert wasHashSuccessful
 
-  result = encode(output)
-  result.removeSuffix("=")
+  result = cast[Hash](output)

@@ -3,13 +3,16 @@ from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
 import ./private/[base64_utils, pbkdf2_utils]
 
 export pbkdf2_utils.Pbkdf2Error
+export Password
+export toPassword
+export Hash
 
 # Imports that sometimes break when importing from std/openssl - START
 proc EVP_sha512_fixed(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha512".}
 # Imports that sometimes break when importing from std/openssl - END
 
 proc encodeHash*(
-  hash: string, 
+  hash: Hash, 
   salt: seq[byte], 
   iterations: SomeInteger, 
 ): string =
@@ -22,7 +25,7 @@ proc encodeHash*(
 
   result = encodeHash(hash, salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
-proc hashPassword*(password: string, salt: seq[byte], iterations: int): string {.gcsafe.} =
+proc hashPassword*(password: Password, salt: seq[byte], iterations: int): Hash {.gcsafe.} =
   ## Hashes the given plain-text password with the PBKDF2 using an HMAC 
   ## with the SHA512 hashing algorithm from openssl.
   ## 
@@ -72,9 +75,9 @@ proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pb
     let iterations: int = parseInt(hashPieces[1])
     let salt: seq[byte] = hashPieces[2].decode()
 
-    let passwordHash: string = password.hashPassword(salt, iterations)
+    let passwordHash: Hash = password.hashPassword(salt, iterations)
     
-    let hash: string = hashPieces[3]
+    let hash: Hash = hashPieces[3].decode()
     result = passwordHash == hash
   
   except CatchableError as e:

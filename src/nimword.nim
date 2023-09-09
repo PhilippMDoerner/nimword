@@ -3,6 +3,9 @@ import std/[strutils, strformat]
 
 export argon2.SodiumError
 export pbkdf2_sha256.Pbkdf2Error
+export Password
+export toPassword
+export Hash
 
 type NimwordHashingAlgorithm* = enum
   ## The number of different hashing algorithms nimword supports
