@@ -50,7 +50,7 @@ These core procs are also available in the individual modules for each algorithm
 
 The individual algorithm-modules further provide 2 procs in case some customization is needed:
 - `hashPassword`:
-  Proc to create base 64 encoded hashes like `hashEncodePassword`, but returns the hash directly from there without turning it into a specific format like `hashEncodePassword` does.
+  Proc to create unencoded raw hashes like `hashEncodePassword`, but returns the hash-bytes directly from there without turning it into a specific format like `hashEncodePassword` does.
 - `encodeHash`:
   Proc to generate strings of the format that `hashEncodePassword` outputs, but without doing any of the hashing itself. The output can be used with `isValidPassword`.
 

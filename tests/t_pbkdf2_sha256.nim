@@ -67,7 +67,7 @@ suite "PBKDF2-HMAC-SHA256":
     let expectedEncodedHash: string = hashEncodePassword(password, iterations)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
     let salt: seq[byte] = encodedSalt.decode()
-    let hash: string = hashPassword(
+    let hash: Hash = hashPassword(
       password, 
       salt, 
       iterations

@@ -12,12 +12,35 @@ on:
 
 jobs:
   Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: tests
-        run: docker-compose run tests
+    strategy:
+      matrix:
+        nimversion: 
+          - binary:2.0.0
+          - binary:1.6.10
+        os:
+          - ubuntu-latest
+          #- windows-latest
+          #- macOS-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    
+    name: Nim ${{ matrix.nimversion }} - ${{ matrix.os }}
 
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: iffy/install-nim@v4
+        with:
+          version: ${{ matrix.nimversion }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl libsodium-dev xz-utils argon2
+          nimble install -y
+          nimble test
+          
   Docs:
     runs-on: ubuntu-latest
     steps:

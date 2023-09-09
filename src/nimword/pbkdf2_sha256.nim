@@ -3,13 +3,16 @@ from std/openssl import DLLSSLName, EVP_MD, DLLUtilName
 import ./private/[base64_utils, pbkdf2_utils]
 
 export pbkdf2_utils.Pbkdf2Error
+export Password
+export toPassword
+export Hash
 
 # Imports that sometimes break when importing from std/openssl - START
 proc EVP_sha256_fixed(): EVP_MD    {.cdecl, dynlib: DLLUtilName, importc: "EVP_sha256".}
 # Imports that sometimes break when importing from std/openssl - END
 
 proc encodeHash*(
-  hash: string, 
+  hash: Hash, 
   salt: seq[byte], 
   iterations: SomeInteger, 
 ): string =
@@ -22,11 +25,11 @@ proc encodeHash*(
 
   result = encodeHash(hash, salt, iterations, Pbkdf2Algorithm.pbkdf2_sha256)
 
-proc hashPassword*(password: string, salt: seq[byte], iterations: int): string {.gcsafe.} =
+proc hashPassword*(password: Password, salt: seq[byte], iterations: int): Hash {.gcsafe.} =
   ## Hashes the given plain-text password with the PBKDF2 using an HMAC 
   ## with the SHA256 hashing algorithm from openssl.
   ## 
-  ## Returns the hash as string.
+  ## Returns the hash as Hash type.
   ## 
   ## Salt can be of any size, but is recommended to be at least 16 bytes long.
   ## 
@@ -39,11 +42,11 @@ proc hashPassword*(password: string, salt: seq[byte], iterations: int): string {
   let digestFunction: EVP_MD = EVP_sha256_fixed()
   result = hashPbkdf2(password, salt, iterations, digestFunction)
 
-proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
+proc hashEncodePassword*(password: Password, iterations: int): string {.gcsafe.} =
   ## Hashes and encodes the given password with the PBKDF2 using an HMAC 
   ## with the SHA256 hashing algorithm from openssl.
   ## 
-  ## Returns the hash as part of a larger string containing hash, iterations and salt. 
+  ## Returns the hash in an encoded form as part of a larger string containing it, iterations and salt. 
   ## For information about the pattern see `encodeHash<#encodeHash%2Cstring%2Cseq[byte]%2CSomeInteger>`_
   ## 
   ## The return value can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
@@ -53,10 +56,10 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   ## 
   ## The salt used for the hash is randomly generated during the process.
   let salt = urandom(16)
-  let hash = hashPassword(password, salt, iterations)
+  let hash: Hash = hashPassword(password, salt, iterations)
   result = hash.encodeHash(salt, iterations)
 
-proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pbkdf2Error, Exception} .} =
+proc isValidPassword*(password: Password, encodedHash: string): bool {.raises: {Pbkdf2Error, Exception} .} =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
@@ -70,14 +73,14 @@ proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pb
     let iterations: int = parseInt(hashPieces[1])
     let salt: seq[byte] = hashPieces[2].decode()
 
-    let passwordHash: string = password.hashPassword(salt, iterations)
+    let passwordHash: Hash = password.hashPassword(salt, iterations)
     
-    let hash: string = hashPieces[3]
+    let hash: Hash = hashPieces[3].decode()
     result = passwordHash == hash
   
   except CatchableError as e:
     raise newException(
       Pbkdf2Error, 
-      fmt"Could not calculate password hash from the data encoded in '{encodedHash}'", 
+      fmt"Could not calculate password hash from the encoded Hash string", 
       e
     )

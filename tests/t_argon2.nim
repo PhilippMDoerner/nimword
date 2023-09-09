@@ -83,7 +83,7 @@ suite "nimword-basics":
     let expectedEncodedHash: string = hashEncodePassword(password, iterations, phaArgon2id13, memoryLimitInKiB)
     let encodedSalt: string = expectedEncodedHash.split("$")[^2]
     let salt: seq[byte] = encodedSalt.decode()
-    let hash: string = hashPassword(
+    let hash: Hash = hashPassword(
       password, 
       salt, 
       iterations, 
@@ -145,12 +145,15 @@ suite "Argon2 specific":
   """:
     # Given
     let argonCommand = fmt"echo -n {password} | argon2 {saltStr} -v 13 -id -p 1 -k {memoryLimitInKiB} -t {iterations} -l {hashLength} -e"
-    let cliEncodedHash = execCmdEx(argonCommand).output
-    var cliHash: string = cliEncodedHash.split('$')[^1]
-    cliHash.removeSuffix("\n")
+    let cliResult = execCmdEx(argonCommand)
+    doAssert cliResult.exitCode == 0, "Failed to compute cli-hash. Problem was: " & cliResult.output
+    let cliEncodedHash = cliResult.output
+    
+    echo cliEncodedHash.split('$') # TODO: Remove
+    var cliHash: Hash = cliEncodedHash.split('$')[^1].decode()
 
     # When
-    let libHash = hashPassword(
+    let libHash: Hash = hashPassword(
       password, 
       salt, 
       iterations, 

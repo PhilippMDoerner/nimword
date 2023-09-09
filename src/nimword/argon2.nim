@@ -1,11 +1,15 @@
 import std/[strformat, base64, strutils]
 import libsodium/[sodium, sodium_sizes]
+import ./private/types
 
 export sodium.PasswordHashingAlgorithm
 export sodium.SodiumError
+export types.Password
+export types.toPassword
+export types.Hash
 
 proc encodeHash*(
-  hash: string, 
+  hash: Hash, 
   salt: seq[byte], 
   iterations: int, 
   algorithm: PasswordHashingAlgorithm;
@@ -14,8 +18,8 @@ proc encodeHash*(
   ## Encodes all relevant data for a password hash in a string.
   ## 
   ## The returned string can be used with `isValidPassword<#isValidPassword%2Cstring%2Cstring>`_ .
+  ## Hash is a seq[byte] like salt and gets turned into a base64 encoded string with all padding suffix characters of "=" removed".
   ## 
-  ## Hash is assumed to be a base64 encoded strings.
   ## Salt gets turned into a base64 encoded string with all padding suffix character of "=" removed.
   ## memoryLimitKibiBytes is the number of KiB used for the hashing process.
   ## algorithm is either "argon2id" or "argon2i".
@@ -24,6 +28,8 @@ proc encodeHash*(
   ## $<algorithm>$v=19$m=<memoryLimit>,t=<iterations>,p=1$<salt>$<hash>
   var encodedSalt = salt.encode()
   encodedSalt.removeSuffix('=')
+  var encodedHash = hash.encode()
+  encodedHash.removeSuffix('=')
 
   let algorithmStr = case algorithm:
     of phaDefault, phaArgon2id13:
@@ -31,21 +37,20 @@ proc encodeHash*(
     of phaArgon2i13:
       "argon2i"
 
-  result = fmt"${algorithmStr}$v=19$m={memoryLimitKibiBytes},t={iterations},p=1${encodedSalt}${hash}"
+  result = fmt"${algorithmStr}$v=19$m={memoryLimitKibiBytes},t={iterations},p=1${encodedSalt}${encodedHash}"
 
 
 
 proc hashPassword*(
-  password: string, 
+  password: Password, 
   salt: seq[byte], 
   iterations: int = crypto_pwhash_opslimit_moderate().int,
   hashLength: int = 32,
   algorithm: PasswordHashingAlgorithm = phaDefault,
   memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
-): string {.raises: {SodiumError, ValueError}.} =
+): Hash {.raises: {SodiumError, ValueError}.} =
   ## Hashes the given password using the argon2 algorithm from libsodium.
-  ## Returns the hash as a base64 encoded string with any padding "=" suffix
-  ## character removed.
+  ## Returns the hash as seq[byte]
   ## 
   ## Salt must be exactly 16 bytes long.
   ## 
@@ -54,7 +59,7 @@ proc hashPassword*(
   ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#guidelines-for-choosing-the-parameters>`_
   ## for the `opslimit` value.
   ## 
-  ## hashLength is the number of characters that the hash should be long.
+  ## hashLength is the number of bytes that the hash should be long.
   ## For guidance on how to choose a number for this value, consult the
   ## `libsodium-documentation<https://doc.libsodium.org/password_hashing/default_phf#key-derivation>`_ 
   ## for the `outlen` value.
@@ -72,19 +77,18 @@ proc hashPassword*(
   ## Raises SodiumError for invalid values for memoryLimit or iterations.
 
   let memoryLimitBytes = memoryLimitKibiBytes * 1024
-  let hashBytes = crypto_pwhash(
-    password, 
+  let hash: Hash = crypto_pwhash(
+    password.string, 
     salt, 
     hashLength, 
     algorithm, 
     iterations.csize_t, 
     memoryLimitBytes.csize_t
   )
-  result = hashBytes.encode()
-  result.removeSuffix("=")
+  return hash
 
 proc hashEncodePassword*(
-  password: string, 
+  password: Password, 
   iterations: int = crypto_pwhash_opslimit_moderate().int,
   algorithm: PasswordHashingAlgorithm = phaDefault,
   memoryLimitKibiBytes: int = (crypto_pwhash_memlimit_moderate().int / 1024).int
@@ -104,13 +108,13 @@ proc hashEncodePassword*(
   ## Raises SodiumError for invalid values for memoryLimit or iterations.
   let memoryLimitBytes: int = memoryLimitKibiBytes * 1024
   result = crypto_pwhash_str(
-    password, 
+    password.string, 
     algorithm, 
     iterations.csize_t, 
     memoryLimitBytes.csize_t
   )
 
-proc isValidPassword*(password: string, encodedHash: string): bool {.raises: SodiumError.} =
+proc isValidPassword*(password: Password, encodedHash: string): bool {.raises: SodiumError.} =
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
@@ -118,4 +122,4 @@ proc isValidPassword*(password: string, encodedHash: string): bool {.raises: Sod
   ## and `hashEncodePassword<#hashEncodePassword%2Cstring%2Cint>`_ generate. 
   ## 
   ## Raises SodiumError if an error happens during the process.
-  result = crypto_pwhash_str_verify(encodedHash, password) 
+  result = crypto_pwhash_str_verify(encodedHash, password.string) 
