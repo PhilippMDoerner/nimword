@@ -26,6 +26,7 @@ jobs:
     
     name: Nim ${{ matrix.nimversion }} - ${{ matrix.os }}
 
+
     steps:
       - uses: actions/checkout@v1
       - uses: iffy/install-nim@v4
@@ -42,7 +43,7 @@ jobs:
   Docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Docs
         run: docker-compose run docs
 
