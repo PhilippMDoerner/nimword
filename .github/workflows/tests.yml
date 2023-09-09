@@ -38,7 +38,6 @@ jobs:
         run: |
           apt-get update && apt-get install -y openssl libsodium-dev xz-utils
           apt-get install -y argon2
-          /bin/bash
           nimble install -y
           nimble test
           
