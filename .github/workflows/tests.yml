@@ -37,8 +37,8 @@ jobs:
       - name: Test
         run: |
           /bin/bash
-          apt-get update && apt-get install -y openssl libsodium-dev xz-utils argon2
-          apt-get install -y argon2
+          sudo apt-get update && apt-get install -y openssl libsodium-dev xz-utils argon2
+          sudo apt-get install -y argon2
           nimble install -y
           nimble test
           
