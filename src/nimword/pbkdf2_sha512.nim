@@ -43,7 +43,7 @@ proc hashPassword*(password: Password, salt: seq[byte], iterations: int): Hash {
 
   result = hashPbkdf2(password, salt, iterations, digestFunction)
 
-proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
+proc hashEncodePassword*(password: Password, iterations: int): string {.gcsafe.} =
   ## Hashes and encodes the given password with the PBKDF2 using an HMAC 
   ## with the SHA256 hashing algorithm from openssl.
   ## 
@@ -61,7 +61,7 @@ proc hashEncodePassword*(password: string, iterations: int): string {.gcsafe.} =
   let hash = hashPassword(password, salt, iterations)
   result = hash.encodeHash(salt, iterations, Pbkdf2Algorithm.pbkdf2_sha512)
 
-proc isValidPassword*(password: string, encodedHash: string): bool {.raises: {Pbkdf2Error, Exception} .}=
+proc isValidPassword*(password: Password, encodedHash: string): bool {.raises: {Pbkdf2Error, Exception} .}=
   ## Verifies that a given plain-text password can be used to generate
   ## the hash contained in `encodedHash` with the parameters provided in `encodedHash`.
   ## 
