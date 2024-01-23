@@ -1,0 +1,5 @@
+nimTitle	pbkdf2_sha512	nimword/pbkdf2_sha512.html	module src/nimword/pbkdf2_sha512		0
+nim	encodeHash	nimword/pbkdf2_sha512.html#encodeHash,Hash,seq[byte],SomeInteger	proc encodeHash(hash: Hash; salt: seq[byte]; iterations: SomeInteger): string		14
+nim	hashPassword	nimword/pbkdf2_sha512.html#hashPassword,Password,seq[byte],int	proc hashPassword(password: Password; salt: seq[byte]; iterations: int): Hash		28
+nim	hashEncodePassword	nimword/pbkdf2_sha512.html#hashEncodePassword,Password,int	proc hashEncodePassword(password: Password; iterations: int): string		46
+nim	isValidPassword	nimword/pbkdf2_sha512.html#isValidPassword,Password,string	proc isValidPassword(password: Password; encodedHash: string): bool		64
