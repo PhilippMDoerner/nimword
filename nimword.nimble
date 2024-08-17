@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.0"
+version       = "1.0.1"
 author        = "Philipp Doerner"
 description   = "A simple library with a simple interface to do password hashing and validation with different algorithms"
 license       = "MIT"
@@ -10,7 +10,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.6.10"
-requires "libsodium >= 0.7.1"
+requires "libsodium#144d6d8"
 
 task apis, "docs only for api":
   exec "nim doc --verbosity:0 --warnings:off --project --index:on " &
