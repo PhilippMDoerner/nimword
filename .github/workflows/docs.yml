@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache choosenim
         id: cache-choosenim
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.choosenim
           key: ${{ runner.os }}-choosenim-stable
 
       - name: Cache nimble
         id: cache-nimble
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.nimble
           key: ${{ runner.os }}-nimble-${{ hashFiles('nimword.nimble') }}
@@ -40,7 +40,7 @@ jobs:
         run: nimble --verbose apis
 
       - name: Archive API docs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: api-docs
           path: |
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all docs
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Check files
         run: |
@@ -64,7 +64,7 @@ jobs:
 
       - name: Deploy
         if: success()
-        uses: crazy-max/ghaction-github-pages@v3.2.0
+        uses: crazy-max/ghaction-github-pages@v4.0.0
         with:
           target_branch: gh-pages
           build_dir: ./docs
