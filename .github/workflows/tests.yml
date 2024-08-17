@@ -1,50 +1,51 @@
 name: Run Tests
 
 on:
-  push:
-    branches:
-      - devel
-      - main
-  pull_request:
-    branches:
-      - devel
-      - main
+    push:
+        branches:
+            - devel
+            - main
+    pull_request:
+        branches:
+            - devel
+            - main
 
 jobs:
-  Tests:
-    strategy:
-      matrix:
-        nimversion: 
-          - binary:2.0.0
-          - binary:1.6.10
-        os:
-          - ubuntu-latest
-          #- windows-latest
-          #- macOS-latest
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    
-    name: Nim ${{ matrix.nimversion }} - ${{ matrix.os }}
+    Tests:
+        strategy:
+            matrix:
+                nimversion:
+                    - binary:2.0.0
+                    - binary:1.6.10
+                os:
+                    - ubuntu-latest
+                    #- windows-latest
+                    #- macOS-latest
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 30
 
+        name: Nim ${{ matrix.nimversion }} - ${{ matrix.os }}
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: iffy/install-nim@v5
-        with:
-          version: ${{ matrix.nimversion }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Test
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openssl libsodium-dev xz-utils argon2
-          nimble install -y
-          nimble test
-          
-  Docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Docs
-        run: docker-compose run docs
+        steps:
+            - uses: actions/checkout@v4
+            - uses: iffy/install-nim@v5
+              with:
+                  version: ${{ matrix.nimversion }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Test
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y openssl libsodium-dev xz-utils argon2
+                  nimble install -y
+                  nimble test
 
+    Docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: KengoTODA/actions-setup-docker-compose@v1
+              with:
+                  version: "2.14.2" # the full version of `docker-compose` command
+            - uses: actions/checkout@v4
+            - name: Docs
+              run: docker-compose run docs
