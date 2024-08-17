@@ -1,0 +1,4 @@
+nimTitle	types	nimword/private/types.html	module src/nimword/private/types		0
+nim	Password	nimword/private/types.html#Password	type Password		1
+nim	toPassword	nimword/private/types.html#toPassword.c,string	converter toPassword(str: string): Password		3
+nim	Hash	nimword/private/types.html#Hash	type Hash		5
