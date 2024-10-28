@@ -1,0 +1,7 @@
+nimTitle	pbkdf2_utils	nimword/private/pbkdf2_utils.html	module src/nimword/private/pbkdf2_utils		0
+nim	Pbkdf2Error	nimword/private/pbkdf2_utils.html#Pbkdf2Error	object Pbkdf2Error		8
+nim	pbkdf2_sha256	nimword/private/pbkdf2_utils.html#pbkdf2_sha256	Pbkdf2Algorithm.pbkdf2_sha256		10
+nim	pbkdf2_sha512	nimword/private/pbkdf2_utils.html#pbkdf2_sha512	Pbkdf2Algorithm.pbkdf2_sha512		10
+nim	Pbkdf2Algorithm	nimword/private/pbkdf2_utils.html#Pbkdf2Algorithm	enum Pbkdf2Algorithm		10
+nim	encodeHash	nimword/private/pbkdf2_utils.html#encodeHash,Hash,seq[byte],SomeInteger,Pbkdf2Algorithm	proc encodeHash(hash: Hash; salt: seq[byte]; iterations: SomeInteger;\n           algorithm: Pbkdf2Algorithm): string		51
+nim	hashPbkdf2	nimword/private/pbkdf2_utils.html#hashPbkdf2,Password,seq[byte],int,EVP_MD	proc hashPbkdf2(password: Password; salt: seq[byte]; iterations: int;\n           digestFunction: EVP_MD): Hash		101
