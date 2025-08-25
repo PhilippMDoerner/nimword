@@ -27,7 +27,7 @@ jobs:
         name: Nim ${{ matrix.nimversion }} - ${{ matrix.os }}
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - uses: iffy/install-nim@v5
               with:
                   version: ${{ matrix.nimversion }}
@@ -46,6 +46,6 @@ jobs:
             - uses: KengoTODA/actions-setup-docker-compose@v1
               with:
                   version: "2.14.2" # the full version of `docker-compose` command
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Docs
               run: docker-compose run docs
